@@ -73,7 +73,7 @@ final upcomingBookingsProvider = Provider<AsyncValue<List<Booking>>>((ref) {
 });
 
 class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _supabase;
   final String? _orgId;
 
   BookingsNotifier(this._supabase, this._orgId)
@@ -82,13 +82,13 @@ class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
   }
 
   Future<void> _loadBookings() async {
-    if (_orgId == null) {
+    if (_supabase == null || _orgId == null) {
       state = const AsyncValue.data([]);
       return;
     }
     state = const AsyncValue.loading();
     try {
-      final response = await _supabase
+      final response = await _supabase!
           .from('bookings')
           .select()
           .eq('org_id', _orgId!)
@@ -103,8 +103,9 @@ class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
   }
 
   Future<void> cancelBooking(String bookingId) async {
+    if (_supabase == null) return;
     try {
-      await _supabase
+      await _supabase!
           .from('bookings')
           .update({'status': 'cancelled'})
           .eq('id', bookingId);

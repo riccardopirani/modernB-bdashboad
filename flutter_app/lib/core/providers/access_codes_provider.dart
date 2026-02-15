@@ -78,7 +78,7 @@ final accessCodesProvider = StateNotifierProvider<AccessCodesNotifier,
 
 class AccessCodesNotifier
     extends StateNotifier<AsyncValue<List<AccessCode>>> {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _supabase;
   final String? _orgId;
 
   AccessCodesNotifier(this._supabase, this._orgId)
@@ -87,13 +87,13 @@ class AccessCodesNotifier
   }
 
   Future<void> _loadCodes() async {
-    if (_orgId == null) {
+    if (_supabase == null || _orgId == null) {
       state = const AsyncValue.data([]);
       return;
     }
     state = const AsyncValue.loading();
     try {
-      final response = await _supabase
+      final response = await _supabase!
           .from('access_codes')
           .select()
           .eq('org_id', _orgId!)
@@ -118,9 +118,9 @@ class AccessCodesNotifier
     String? guestEmail,
     String? guestPhone,
   }) async {
-    if (_orgId == null) return;
+    if (_supabase == null || _orgId == null) return;
     try {
-      final insertResponse = await _supabase
+      final insertResponse = await _supabase!
           .from('access_codes')
           .insert({
             'org_id': _orgId,
@@ -139,20 +139,17 @@ class AccessCodesNotifier
           .single();
 
       final accessCodeId = insertResponse['id'];
-      final user = _supabase.auth.currentUser;
-      if (user != null) {
-        await _supabase.functions.invoke(
-          'ttlock-generate-code',
-          body: {
-            'lock_id': lockId,
-            'access_code_id': accessCodeId,
-            'code': code,
-            'valid_from': (validFrom.millisecondsSinceEpoch ~/ 1000),
-            'valid_until': (validUntil.millisecondsSinceEpoch ~/ 1000),
-            'org_id': _orgId,
-          },
-        );
-      }
+      await _supabase!.functions.invoke(
+        'ttlock-generate-code',
+        body: {
+          'lock_id': lockId,
+          'access_code_id': accessCodeId,
+          'code': code,
+          'valid_from': (validFrom.millisecondsSinceEpoch ~/ 1000),
+          'valid_until': (validUntil.millisecondsSinceEpoch ~/ 1000),
+          'org_id': _orgId,
+        },
+      );
       await _loadCodes();
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -160,8 +157,9 @@ class AccessCodesNotifier
   }
 
   Future<void> revokeCode(String codeId) async {
+    if (_supabase == null) return;
     try {
-      await _supabase
+      await _supabase!
           .from('access_codes')
           .update({'status': 'revoked'})
           .eq('id', codeId);
@@ -172,8 +170,9 @@ class AccessCodesNotifier
   }
 
   Future<void> sendCode(String codeId, String via) async {
+    if (_supabase == null) return;
     try {
-      await _supabase
+      await _supabase!
           .from('access_codes')
           .update({
             'sent_via': via,

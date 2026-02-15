@@ -59,7 +59,7 @@ final locksProvider =
 });
 
 class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _supabase;
   final String? _orgId;
 
   LocksNotifier(this._supabase, this._orgId)
@@ -68,13 +68,13 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
   }
 
   Future<void> _loadLocks() async {
-    if (_orgId == null) {
+    if (_supabase == null || _orgId == null) {
       state = const AsyncValue.data([]);
       return;
     }
     state = const AsyncValue.loading();
     try {
-      final response = await _supabase
+      final response = await _supabase!
           .from('locks')
           .select()
           .eq('org_id', _orgId!)
@@ -89,9 +89,9 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
   }
 
   Future<void> syncLocks() async {
-    if (_orgId == null) return;
+    if (_supabase == null || _orgId == null) return;
     try {
-      await _supabase.functions.invoke(
+      await _supabase!.functions.invoke(
         'ttlock-sync-locks',
         body: {'org_id': _orgId},
       );
@@ -102,8 +102,9 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
   }
 
   Future<void> assignLockToProperty(String lockId, String propertyId) async {
+    if (_supabase == null) return;
     try {
-      await _supabase
+      await _supabase!
           .from('locks')
           .update({'property_id': propertyId})
           .eq('id', lockId);
@@ -114,8 +115,9 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
   }
 
   Future<void> unassignLock(String lockId) async {
+    if (_supabase == null) return;
     try {
-      await _supabase
+      await _supabase!
           .from('locks')
           .update({'property_id': null})
           .eq('id', lockId);

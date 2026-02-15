@@ -38,7 +38,9 @@ class SubscriptionInfo {
       currentPeriodStart: DateTime.parse(json['current_period_start']),
       currentPeriodEnd: DateTime.parse(json['current_period_end']),
       cancelAtPeriodEnd: json['cancel_at_period_end'] ?? false,
-      canceledAt: json['canceled_at'] != null ? DateTime.parse(json['canceled_at']) : null,
+      canceledAt: json['canceled_at'] != null
+          ? DateTime.parse(json['canceled_at'])
+          : null,
     );
   }
 
@@ -55,7 +57,7 @@ final subscriptionProvider =
 });
 
 class SubscriptionNotifier extends StateNotifier<AsyncValue<SubscriptionInfo?>> {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _supabase;
   final String? _orgId;
 
   SubscriptionNotifier(this._supabase, this._orgId)
@@ -64,12 +66,12 @@ class SubscriptionNotifier extends StateNotifier<AsyncValue<SubscriptionInfo?>> 
   }
 
   Future<void> _load() async {
-    if (_orgId == null) {
+    if (_supabase == null || _orgId == null) {
       state = const AsyncValue.data(null);
       return;
     }
     try {
-      final response = await _supabase
+      final response = await _supabase!
           .from('stripe_subscriptions')
           .select()
           .eq('org_id', _orgId!)
@@ -89,8 +91,9 @@ class SubscriptionNotifier extends StateNotifier<AsyncValue<SubscriptionInfo?>> 
     required String successUrl,
     required String cancelUrl,
   }) async {
+    if (_supabase == null) throw Exception('Supabase not initialized');
     if (_orgId == null) throw Exception('No organization selected');
-    final res = await _supabase.functions.invoke(
+    final res = await _supabase!.functions.invoke(
       'stripe-create-checkout',
       body: {
         'org_id': _orgId,
@@ -104,8 +107,9 @@ class SubscriptionNotifier extends StateNotifier<AsyncValue<SubscriptionInfo?>> 
   }
 
   Future<String> createPortalSession({required String returnUrl}) async {
+    if (_supabase == null) throw Exception('Supabase not initialized');
     if (_orgId == null) throw Exception('No organization selected');
-    final res = await _supabase.functions.invoke(
+    final res = await _supabase!.functions.invoke(
       'stripe-create-portal',
       body: {'org_id': _orgId, 'return_url': returnUrl},
     );

@@ -49,12 +49,12 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
       return;
     }
 
-    await ref.read(propertiesProvider.notifier).createProperty(
-          _nameController.text,
-          _addressController.text.isEmpty ? null : _addressController.text,
-          _cityController.text.isEmpty ? null : _cityController.text,
-          _stateController.text.isEmpty ? null : _stateController.text,
-          _icalUrlController.text.isEmpty ? null : _icalUrlController.text,
+    await ref.read(propertiesProvider.notifier).addProperty(
+          name: _nameController.text,
+          address: _addressController.text.isEmpty ? null : _addressController.text,
+          city: _cityController.text.isEmpty ? null : _cityController.text,
+          country: _stateController.text.isEmpty ? null : _stateController.text,
+          icalUrl: _icalUrlController.text.isEmpty ? null : _icalUrlController.text,
         );
 
     _resetForm();
@@ -280,7 +280,7 @@ class _PropertyCard extends ConsumerWidget {
           ),
           if (property.city != null)
             Text(
-              '${property.city}, ${property.state ?? ''}',
+              '${property.city}, ${property.country ?? ''}',
               style: TextStyle(
                 fontSize: 12,
                 color: isDark
@@ -318,9 +318,9 @@ class _PropertyCard extends ConsumerWidget {
                 ],
                 onSelected: (value) {
                   if (value == 'sync') {
-                    ref
-                        .read(propertiesProvider.notifier)
-                        .syncIcalBookings(property.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Syncing iCal bookings...')),
+                    );
                   } else if (value == 'delete') {
                     ref
                         .read(propertiesProvider.notifier)

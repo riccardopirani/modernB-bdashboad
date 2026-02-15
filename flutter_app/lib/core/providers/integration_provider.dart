@@ -44,7 +44,7 @@ final ttlockIntegrationProvider =
 });
 
 class TTLockIntegrationNotifier extends StateNotifier<AsyncValue<TTLockIntegration?>> {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _supabase;
   final String? _orgId;
 
   TTLockIntegrationNotifier(this._supabase, this._orgId)
@@ -53,12 +53,12 @@ class TTLockIntegrationNotifier extends StateNotifier<AsyncValue<TTLockIntegrati
   }
 
   Future<void> _load() async {
-    if (_orgId == null) {
+    if (_supabase == null || _orgId == null) {
       state = const AsyncValue.data(null);
       return;
     }
     try {
-      final response = await _supabase
+      final response = await _supabase!
           .from('integrations_ttlock')
           .select()
           .eq('org_id', _orgId!)
@@ -74,8 +74,9 @@ class TTLockIntegrationNotifier extends StateNotifier<AsyncValue<TTLockIntegrati
   }
 
   Future<String> startAuth() async {
+    if (_supabase == null) throw Exception('Supabase not initialized');
     if (_orgId == null) throw Exception('No organization selected');
-    final res = await _supabase.functions.invoke(
+    final res = await _supabase!.functions.invoke(
       'ttlock-auth-start',
       body: {'org_id': _orgId},
     );
@@ -84,8 +85,9 @@ class TTLockIntegrationNotifier extends StateNotifier<AsyncValue<TTLockIntegrati
   }
 
   Future<void> completeAuth(String code, String state) async {
+    if (_supabase == null) throw Exception('Supabase not initialized');
     if (_orgId == null) throw Exception('No organization selected');
-    await _supabase.functions.invoke(
+    await _supabase!.functions.invoke(
       'ttlock-auth-callback',
       body: {'code': code, 'state': state, 'org_id': _orgId},
     );
@@ -93,16 +95,17 @@ class TTLockIntegrationNotifier extends StateNotifier<AsyncValue<TTLockIntegrati
   }
 
   Future<void> syncLocks() async {
+    if (_supabase == null) throw Exception('Supabase not initialized');
     if (_orgId == null) throw Exception('No organization selected');
-    await _supabase.functions.invoke(
+    await _supabase!.functions.invoke(
       'ttlock-sync-locks',
       body: {'org_id': _orgId},
     );
   }
 
   Future<void> disconnect() async {
-    if (_orgId == null) return;
-    await _supabase
+    if (_supabase == null || _orgId == null) return;
+    await _supabase!
         .from('integrations_ttlock')
         .update({'is_active': false})
         .eq('org_id', _orgId!);
