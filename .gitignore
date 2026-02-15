@@ -1,0 +1,35 @@
+# Flutter
+flutter_app/build/
+flutter_app/.dart_tool/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+flutter_app/.packages
+flutter_app/pubspec.lock
+flutter_app/.fvm/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backend
+supabase/.env.local
+supabase/functions/dist/
+supabase/functions/node_modules/
+supabase/functions/.deno/
+
+# Dependencies
+node_modules/
+.pnpm-debug.log*
+
+# Build
+dist/
+build/
+
+# Secrets
+.env
+.env.local
+.env.*.local

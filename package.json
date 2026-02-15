@@ -1,0 +1,20 @@
+{
+  "name": "ttlockadmin",
+  "version": "0.1.0",
+  "description": "Multi-tenant TTLock SaaS with Flutter, Supabase, and Stripe",
+  "private": true,
+  "workspaces": [
+    "supabase/edge-functions"
+  ],
+  "scripts": {
+    "db:push": "supabase db push",
+    "db:pull": "supabase db pull",
+    "seed": "supabase seed run",
+    "functions:serve": "supabase functions serve",
+    "test": "flutter test",
+    "lint": "flutter analyze"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}
