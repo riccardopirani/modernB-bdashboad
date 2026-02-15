@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/theme.dart';
 import '../ui/shell/app_shell.dart';
+import '../features/dashboard/dashboard_page.dart';
 
 // Simple router placeholder - will be extended
 final goRouterProvider = Provider<GoRouter>((ref) {
