@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/config/theme.dart';
 import '../ui/shell/app_shell.dart';
 import '../features/dashboard/dashboard_page.dart';
+import '../features/properties/properties_page.dart';
+import '../features/locks/locks_page.dart';
 
 // Simple router placeholder - will be extended
 final goRouterProvider = Provider<GoRouter>((ref) {
