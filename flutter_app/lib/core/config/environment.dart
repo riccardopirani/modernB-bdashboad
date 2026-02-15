@@ -3,12 +3,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Environment {
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'http://localhost:54321',
+    defaultValue: 'https://hdjtmmwtgiinkmqaekcn.supabase.co',
   );
 
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue: '',
+    defaultValue: 'sb_publishable_HG6uras00GxE1V3sH0tenQ_BpCRqWG5',
   );
 
   static const String stripePublishableKey = String.fromEnvironment(
