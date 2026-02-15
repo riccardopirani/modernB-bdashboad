@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/config/theme.dart';
+import 'package:lockflow/core/config/theme.dart';
 
 class TopBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onMenuTap;
@@ -26,15 +26,13 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           // Menu button (mobile/tablet)
           if (MediaQuery.of(context).size.width <= 1024)
             Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.md),
+              padding: const EdgeInsets.only(right: 12),
               child: IconButton(
                 icon: const Icon(Icons.menu_rounded),
                 onPressed: onMenuTap,
@@ -43,10 +41,9 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
           // Search bar
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: TextField(
                 onTap: () {
-                  // Trigger command palette on tap
                   _showCommandPalette(context);
                 },
                 readOnly: true,
@@ -62,8 +59,8 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
                     borderSide: BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                    vertical: AppSpacing.md,
+                    horizontal: 16,
+                    vertical: 12,
                   ),
                   hintStyle: TextStyle(
                     fontSize: 14,
@@ -77,7 +74,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           // Right actions
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -106,7 +103,7 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: 8),
                 // Dark mode toggle
                 Tooltip(
                   message: 'Theme',
@@ -121,15 +118,16 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
                     },
                   ),
                 ),
-                SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: 8),
                 // Profile menu
                 Tooltip(
                   message: 'Profile',
-                  child: PopupMenuButton(
+                  child: PopupMenuButton<String>(
+                    offset: const Offset(0, 48),
                     child: CircleAvatar(
                       radius: 18,
                       backgroundColor: AppColors.accent,
-                      child: Text(
+                      child: const Text(
                         'JD',
                         style: TextStyle(
                           color: Colors.white,
@@ -138,21 +136,24 @@ class TopBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                     ),
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
+                    itemBuilder: (context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'profile',
                         child: Text('Profile'),
-                        onTap: () {},
                       ),
-                      PopupMenuItem(
+                      const PopupMenuItem<String>(
+                        value: 'settings',
                         child: Text('Settings'),
-                        onTap: () {},
                       ),
                       const PopupMenuDivider(),
-                      PopupMenuItem(
+                      const PopupMenuItem<String>(
+                        value: 'logout',
                         child: Text('Logout'),
-                        onTap: () {},
                       ),
                     ],
+                    onSelected: (value) {
+                      // Handle selection
+                    },
                   ),
                 ),
               ],
@@ -228,7 +229,6 @@ class _CommandPaletteDelegate extends SearchDelegate<String> {
           title: Text(cmd['label']!),
           onTap: () {
             close(context, cmd['action']!);
-            // Navigate based on action
           },
         );
       },

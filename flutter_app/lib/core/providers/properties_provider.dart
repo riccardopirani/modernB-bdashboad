@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'auth_provider.dart';
 
-// Models
 class Property {
   final String id;
   final String name;
@@ -43,12 +42,10 @@ class Property {
   }
 }
 
-// Properties notifier
 final propertiesProvider =
     StateNotifierProvider<PropertiesNotifier, AsyncValue<List<Property>>>((ref) {
   final supabase = ref.watch(supabaseProvider);
   final orgId = ref.watch(currentOrgProvider);
-
   return PropertiesNotifier(supabase, orgId);
 });
 
@@ -66,7 +63,6 @@ class PropertiesNotifier extends StateNotifier<AsyncValue<List<Property>>> {
       state = const AsyncValue.data([]);
       return;
     }
-
     state = const AsyncValue.loading();
     try {
       final response = await _supabase
@@ -74,65 +70,34 @@ class PropertiesNotifier extends StateNotifier<AsyncValue<List<Property>>> {
           .select()
           .eq('org_id', _orgId!)
           .order('created_at', ascending: false);
-
       final properties = (response as List)
           .map((p) => Property.fromJson(p as Map<String, dynamic>))
           .toList();
-
       state = AsyncValue.data(properties);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> createProperty(String name, String? address, String? city,
-      String? state, String? icalUrl) async {
+      String? propertyState, String? icalUrl) async {
     if (_orgId == null) return;
-
     try {
       final response = await _supabase.from('properties').insert({
         'org_id': _orgId,
         'name': name,
         'address': address,
         'city': city,
-        'state': state,
+        'state': propertyState,
         'ical_url': icalUrl,
       }).select();
-
       if (response.isNotEmpty) {
         final newProperty = Property.fromJson(response[0]);
-        state.whenData((properties) {
-          state = AsyncValue.data([newProperty, ...properties]);
-        });
+        final current = state.valueOrNull ?? [];
+        state = AsyncValue.data([newProperty, ...current]);
       }
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
-    }
-  }
-
-  Future<void> updateProperty(String id, {
-    String? name,
-    String? address,
-    String? city,
-    String? state,
-    String? icalUrl,
-  }) async {
-    try {
-      final updates = <String, dynamic>{};
-      if (name != null) updates['name'] = name;
-      if (address != null) updates['address'] = address;
-      if (city != null) updates['city'] = city;
-      if (state != null) updates['state'] = state;
-      if (icalUrl != null) updates['ical_url'] = icalUrl;
-
-      await _supabase
-          .from('properties')
-          .update(updates)
-          .eq('id', id);
-
-      await _loadProperties();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -140,29 +105,21 @@ class PropertiesNotifier extends StateNotifier<AsyncValue<List<Property>>> {
     try {
       await _supabase.from('properties').delete().eq('id', id);
       await _loadProperties();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> syncIcalBookings(String propertyId) async {
     if (_orgId == null) return;
-
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) return;
-
-      final response = await _supabase.functions.invoke(
+      await _supabase.functions.invoke(
         'ical-sync',
-        body: {
-          'property_id': propertyId,
-          'org_id': _orgId,
-        },
+        body: {'property_id': propertyId, 'org_id': _orgId},
       );
-
       await _loadProperties();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 }

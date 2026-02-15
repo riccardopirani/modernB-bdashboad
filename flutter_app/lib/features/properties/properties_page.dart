@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/config/theme.dart';
-import '../../core/providers/properties_provider.dart';
-import '../../ui/components/cards/app_card.dart';
-import '../../ui/components/buttons/app_button.dart';
-import '../../ui/components/inputs/app_text_field.dart';
-import '../../ui/components/loaders/app_skeleton_loader.dart';
-import '../../ui/components/badges/app_chip.dart';
+import 'package:lockflow/core/config/theme.dart';
+import 'package:lockflow/core/providers/properties_provider.dart';
+import 'package:lockflow/ui/components/cards/app_card.dart';
+import 'package:lockflow/ui/components/buttons/app_button.dart';
+import 'package:lockflow/ui/components/inputs/app_text_field.dart';
+import 'package:lockflow/ui/components/loaders/app_skeleton_loader.dart';
+import 'package:lockflow/ui/components/badges/app_chip.dart';
 
 class PropertiesPage extends ConsumerStatefulWidget {
   const PropertiesPage({Key? key}) : super(key: key);
@@ -67,7 +67,7 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
     final properties = ref.watch(propertiesProvider);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -82,7 +82,7 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                     'Properties',
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
-                  SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 4),
                   Text(
                     'Manage your rental properties and booking calendars',
                     style: TextStyle(
@@ -98,14 +98,13 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                 label: 'Add Property',
                 onPressed: () {
                   setState(() => _showCreateDialog = true);
-                  _showCreateDialog;
                 },
                 icon: Icons.add_rounded,
               ),
             ],
           ),
 
-          SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: 32),
 
           // Properties List
           properties.when(
@@ -121,8 +120,8 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                   crossAxisCount:
                       MediaQuery.of(context).size.width < 600 ? 1 : 2,
                   childAspectRatio: 1.3,
-                  crossAxisSpacing: AppSpacing.lg,
-                  mainAxisSpacing: AppSpacing.lg,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                 ),
                 itemCount: props.length,
                 itemBuilder: (context, index) {
@@ -137,12 +136,12 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                 crossAxisCount:
                     MediaQuery.of(context).size.width < 600 ? 1 : 2,
                 childAspectRatio: 1.3,
-                crossAxisSpacing: AppSpacing.lg,
-                mainAxisSpacing: AppSpacing.lg,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
               itemCount: 4,
               itemBuilder: (context, index) {
-                return AppSkeletonCard(lineCount: 3);
+                return const AppSkeletonCard(lineCount: 3);
               },
             ),
             error: (error, stack) => Center(
@@ -153,7 +152,7 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
           // Create Dialog
           if (_showCreateDialog)
             Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xl),
+              padding: const EdgeInsets.only(top: 24),
               child: AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,19 +161,19 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                       'Add New Property',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
-                    SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: 16),
                     AppTextField(
                       label: 'Property Name',
                       hint: 'e.g., Beachfront Villa',
                       controller: _nameController,
                     ),
-                    SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: 12),
                     AppTextField(
                       label: 'Address',
                       hint: 'Street address',
                       controller: _addressController,
                     ),
-                    SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -184,7 +183,7 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                             controller: _cityController,
                           ),
                         ),
-                        SizedBox(width: AppSpacing.md),
+                        const SizedBox(width: 12),
                         SizedBox(
                           width: 80,
                           child: AppTextField(
@@ -195,13 +194,13 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: 12),
                     AppTextField(
                       label: 'iCal URL',
                       hint: 'https://calendar.google.com/calendar/ical/...',
                       controller: _icalUrlController,
                     ),
-                    SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -213,7 +212,7 @@ class _PropertiesPageState extends ConsumerState<PropertiesPage> {
                           },
                           variant: ButtonVariant.ghost,
                         ),
-                        SizedBox(width: AppSpacing.md),
+                        const SizedBox(width: 12),
                         AppButton(
                           label: 'Create',
                           onPressed: _createProperty,
@@ -240,9 +239,7 @@ class _PropertyCard extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
-      onTap: () {
-        // Navigate to property detail
-      },
+      onTap: () {},
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -257,12 +254,12 @@ class _PropertyCard extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: AppColors.accent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.home_rounded,
                   size: 18,
                   color: AppColors.accent,
@@ -270,65 +267,66 @@ class _PropertyCard extends ConsumerWidget {
               ),
             ],
           ),
-          SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 12),
           Text(
             property.address ?? 'No address',
             style: TextStyle(
               fontSize: 12,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
             ),
             overflow: TextOverflow.ellipsis,
           ),
-          if (property.city != null) ...[
+          if (property.city != null)
             Text(
               '${property.city}, ${property.state ?? ''}',
               style: TextStyle(
                 fontSize: 12,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
               ),
               overflow: TextOverflow.ellipsis,
             ),
-          ],
-          SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (property.icalUrl != null)
-                AppChip(
-                  label: 'iCal Synced',
-                  selected: true,
-                )
+                const AppChip(label: 'iCal Synced', selected: true)
               else
-                AppChip(
-                  label: 'No iCal',
-                ),
-              PopupMenuButton(
-                itemBuilder: (context) => [
-                  PopupMenuItem(
+                const AppChip(label: 'No iCal'),
+              PopupMenuButton<String>(
+                itemBuilder: (context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'edit',
                     child: Text('Edit'),
-                    onTap: () {
-                      // Edit property
-                    },
                   ),
-                  PopupMenuItem(
+                  const PopupMenuItem<String>(
+                    value: 'sync',
                     child: Text('Sync iCal'),
-                    onTap: () {
-                      ref
-                          .read(propertiesProvider.notifier)
-                          .syncIcalBookings(property.id);
-                    },
                   ),
                   const PopupMenuDivider(),
-                  PopupMenuItem(
+                  PopupMenuItem<String>(
+                    value: 'delete',
                     child: Text(
                       'Delete',
                       style: TextStyle(color: AppColors.error),
                     ),
-                    onTap: () {
-                      ref.read(propertiesProvider.notifier).deleteProperty(property.id);
-                    },
                   ),
                 ],
+                onSelected: (value) {
+                  if (value == 'sync') {
+                    ref
+                        .read(propertiesProvider.notifier)
+                        .syncIcalBookings(property.id);
+                  } else if (value == 'delete') {
+                    ref
+                        .read(propertiesProvider.notifier)
+                        .deleteProperty(property.id);
+                  }
+                },
               ),
             ],
           ),
@@ -344,12 +342,11 @@ class _EmptyState extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.xxl,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadius.xl),
       ),
       child: Center(
@@ -358,20 +355,23 @@ class _EmptyState extends StatelessWidget {
             Icon(
               Icons.home_rounded,
               size: 48,
-              color:
-                  isDark ? AppColors.darkTextTertiary : AppColors.textTertiary,
+              color: isDark
+                  ? AppColors.darkTextTertiary
+                  : AppColors.textTertiary,
             ),
-            SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 16),
             Text(
               'No properties yet',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: 8),
             Text(
               'Create your first property to get started managing guest access.',
               style: TextStyle(
                 fontSize: 13,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.textTertiary,
+                color: isDark
+                    ? AppColors.darkTextTertiary
+                    : AppColors.textTertiary,
               ),
               textAlign: TextAlign.center,
             ),

@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'auth_provider.dart';
 
 class Lock {
   final String id;
   final String? propertyId;
-  final BigInt ttlockLockId;
+  final String ttlockLockId;
   final String ttlockClientId;
   final String name;
   final String? model;
@@ -31,7 +31,7 @@ class Lock {
     return Lock(
       id: json['id'],
       propertyId: json['property_id'],
-      ttlockLockId: BigInt.parse(json['ttlock_lock_id'].toString()),
+      ttlockLockId: json['ttlock_lock_id'].toString(),
       ttlockClientId: json['ttlock_client_id'],
       name: json['name'],
       model: json['model'],
@@ -55,7 +55,6 @@ final locksProvider =
     StateNotifierProvider<LocksNotifier, AsyncValue<List<Lock>>>((ref) {
   final supabase = ref.watch(supabaseProvider);
   final orgId = ref.watch(currentOrgProvider);
-
   return LocksNotifier(supabase, orgId);
 });
 
@@ -73,7 +72,6 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
       state = const AsyncValue.data([]);
       return;
     }
-
     state = const AsyncValue.loading();
     try {
       final response = await _supabase
@@ -81,32 +79,25 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
           .select()
           .eq('org_id', _orgId!)
           .order('created_at', ascending: false);
-
       final locks = (response as List)
           .map((l) => Lock.fromJson(l as Map<String, dynamic>))
           .toList();
-
       state = AsyncValue.data(locks);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
   Future<void> syncLocks() async {
     if (_orgId == null) return;
-
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) return;
-
       await _supabase.functions.invoke(
         'ttlock-sync-locks',
         body: {'org_id': _orgId},
       );
-
       await _loadLocks();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -116,10 +107,9 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
           .from('locks')
           .update({'property_id': propertyId})
           .eq('id', lockId);
-
       await _loadLocks();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -129,10 +119,9 @@ class LocksNotifier extends StateNotifier<AsyncValue<List<Lock>>> {
           .from('locks')
           .update({'property_id': null})
           .eq('id', lockId);
-
       await _loadLocks();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 }

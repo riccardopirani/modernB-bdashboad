@@ -1,117 +1,124 @@
 import 'package:flutter/material.dart';
-import '../../core/config/theme.dart';
+import 'package:lockflow/core/config/theme.dart';
+
+enum ButtonVariant { primary, secondary, ghost }
+enum ButtonSize { small, medium, large }
 
 class AppButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
-  final bool isLoading;
-  final bool isDisabled;
+  final VoidCallback? onPressed;
   final ButtonVariant variant;
   final ButtonSize size;
   final IconData? icon;
+  final bool isLoading;
+  final bool disabled;
 
   const AppButton({
     Key? key,
     required this.label,
-    required this.onPressed,
-    this.isLoading = false,
-    this.isDisabled = false,
+    this.onPressed,
     this.variant = ButtonVariant.primary,
     this.size = ButtonSize.medium,
     this.icon,
+    this.isLoading = false,
+    this.disabled = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bool disabled = isDisabled || isLoading;
 
-    return Material(
-      child: InkWell(
-        onTap: disabled ? null : onPressed,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        child: Container(
-          padding: _getPadding(),
-          decoration: BoxDecoration(
-            color: _getBackgroundColor(isDark, disabled),
-            border: _getBorder(isDark),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            boxShadow: variant == ButtonVariant.primary && !disabled
-                ? AppElevation.shadowMedium
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null && !isLoading) ...[
-                Icon(
-                  icon,
-                  size: _getIconSize(),
-                  color: _getTextColor(isDark, disabled),
+        boxShadow: variant == ButtonVariant.primary
+            ? [
+                BoxShadow(
+                  color: _getBackgroundColor(isDark).withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-                SizedBox(width: AppSpacing.sm),
-              ],
-              if (isLoading)
-                SizedBox(
-                  width: _getIconSize(),
-                  height: _getIconSize(),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(
-                      _getTextColor(isDark, disabled),
+              ]
+            : null,
+      ),
+      child: Material(
+        color: _getBackgroundColor(isDark),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: InkWell(
+          onTap: (disabled || isLoading) ? null : onPressed,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          child: Container(
+            padding: _getPadding(),
+            decoration: variant == ButtonVariant.ghost
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkOutline : AppColors.outline,
+                    ),
+                  )
+                : null,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null && !isLoading) ...[
+                  Icon(icon, size: 18, color: _getTextColor(isDark)),
+                  const SizedBox(width: 8),
+                ],
+                if (isLoading) ...[
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(_getTextColor(isDark)),
                     ),
                   ),
-                )
-              else
+                  const SizedBox(width: 8),
+                ],
                 Text(
                   label,
-                  style: _getTextStyle(),
+                  style: TextStyle(
+                    fontSize: _getFontSize(),
+                    fontWeight: FontWeight.w600,
+                    color: _getTextColor(isDark),
+                  ),
                 ),
-              if (isLoading) SizedBox(width: AppSpacing.sm),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  EdgeInsets _getPadding() {
+  EdgeInsetsGeometry _getPadding() {
     switch (size) {
       case ButtonSize.small:
-        return EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        );
+        return const EdgeInsets.symmetric(horizontal: 12, vertical: 4);
       case ButtonSize.medium:
-        return EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
-        );
+        return const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
       case ButtonSize.large:
-        return EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl,
-          vertical: AppSpacing.lg,
-        );
+        return const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
     }
   }
 
-  double _getIconSize() {
+  double _getFontSize() {
     switch (size) {
       case ButtonSize.small:
+        return 12;
+      case ButtonSize.medium:
+        return 14;
+      case ButtonSize.large:
         return 16;
-      case ButtonSize.medium:
-        return 18;
-      case ButtonSize.large:
-        return 20;
     }
   }
 
-  Color _getBackgroundColor(bool isDark, bool disabled) {
+  Color _getBackgroundColor(bool isDark) {
     if (disabled) {
       return isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceVariant;
     }
-
     switch (variant) {
       case ButtonVariant.primary:
         return AppColors.primary;
@@ -122,11 +129,10 @@ class AppButton extends StatelessWidget {
     }
   }
 
-  Color _getTextColor(bool isDark, bool disabled) {
+  Color _getTextColor(bool isDark) {
     if (disabled) {
       return isDark ? AppColors.darkTextTertiary : AppColors.textTertiary;
     }
-
     switch (variant) {
       case ButtonVariant.primary:
         return Colors.white;
@@ -136,27 +142,4 @@ class AppButton extends StatelessWidget {
         return isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
     }
   }
-
-  Border? _getBorder(bool isDark) {
-    if (variant == ButtonVariant.ghost || variant == ButtonVariant.secondary) {
-      return Border.all(
-        color: isDark ? AppColors.darkOutline : AppColors.outline,
-      );
-    }
-    return null;
-  }
-
-  TextStyle _getTextStyle() {
-    switch (size) {
-      case ButtonSize.small:
-        return const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
-      case ButtonSize.medium:
-        return const TextStyle(fontSize: 14, fontWeight: FontWeight.w600);
-      case ButtonSize.large:
-        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-    }
-  }
 }
-
-enum ButtonVariant { primary, secondary, ghost }
-enum ButtonSize { small, medium, large }

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'auth_provider.dart';
 
 class AccessCode {
@@ -11,7 +11,7 @@ class AccessCode {
   final String? guestEmail;
   final String? guestPhone;
   final String code;
-  final BigInt? ttlockCodeId;
+  final String? ttlockCodeId;
   final DateTime validFrom;
   final DateTime validUntil;
   final int timesUsed;
@@ -51,9 +51,7 @@ class AccessCode {
       guestEmail: json['guest_email'],
       guestPhone: json['guest_phone'],
       code: json['code'],
-      ttlockCodeId: json['ttlock_code_id'] != null
-          ? BigInt.parse(json['ttlock_code_id'].toString())
-          : null,
+      ttlockCodeId: json['ttlock_code_id']?.toString(),
       validFrom: DateTime.parse(json['valid_from']),
       validUntil: DateTime.parse(json['valid_until']),
       timesUsed: json['times_used'] ?? 0,
@@ -66,7 +64,8 @@ class AccessCode {
     );
   }
 
-  bool get isActive => status == 'active' && DateTime.now().isBefore(validUntil);
+  bool get isActive =>
+      status == 'active' && DateTime.now().isBefore(validUntil);
   bool get isExpired => DateTime.now().isAfter(validUntil);
 }
 
@@ -74,11 +73,11 @@ final accessCodesProvider = StateNotifierProvider<AccessCodesNotifier,
     AsyncValue<List<AccessCode>>>((ref) {
   final supabase = ref.watch(supabaseProvider);
   final orgId = ref.watch(currentOrgProvider);
-
   return AccessCodesNotifier(supabase, orgId);
 });
 
-class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
+class AccessCodesNotifier
+    extends StateNotifier<AsyncValue<List<AccessCode>>> {
   final SupabaseClient _supabase;
   final String? _orgId;
 
@@ -92,7 +91,6 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
       state = const AsyncValue.data([]);
       return;
     }
-
     state = const AsyncValue.loading();
     try {
       final response = await _supabase
@@ -100,14 +98,12 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
           .select()
           .eq('org_id', _orgId!)
           .order('created_at', ascending: false);
-
       final codes = (response as List)
           .map((c) => AccessCode.fromJson(c as Map<String, dynamic>))
           .toList();
-
       state = AsyncValue.data(codes);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -123,9 +119,7 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
     String? guestPhone,
   }) async {
     if (_orgId == null) return;
-
     try {
-      // Create access code record
       final insertResponse = await _supabase
           .from('access_codes')
           .insert({
@@ -145,8 +139,6 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
           .single();
 
       final accessCodeId = insertResponse['id'];
-
-      // Call Edge Function to generate on TTLock
       final user = _supabase.auth.currentUser;
       if (user != null) {
         await _supabase.functions.invoke(
@@ -161,10 +153,9 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
           },
         );
       }
-
       await _loadCodes();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -174,10 +165,9 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
           .from('access_codes')
           .update({'status': 'revoked'})
           .eq('id', codeId);
-
       await _loadCodes();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -190,10 +180,9 @@ class AccessCodesNotifier extends StateNotifier<AsyncValue<List<AccessCode>>> {
             'sent_at': DateTime.now().toIso8601String(),
           })
           .eq('id', codeId);
-
       await _loadCodes();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 }

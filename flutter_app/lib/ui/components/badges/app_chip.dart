@@ -1,93 +1,102 @@
 import 'package:flutter/material.dart';
-import '../../core/config/theme.dart';
+import 'package:lockflow/core/config/theme.dart';
 
 class AppChip extends StatelessWidget {
   final String label;
-  final VoidCallback? onDelete;
   final bool selected;
-  final void Function()? onTap;
+  final VoidCallback? onTap;
+  final IconData? icon;
+  final String? count;
 
   const AppChip({
     Key? key,
     required this.label,
-    this.onDelete,
     this.selected = false,
     this.onTap,
+    this.icon,
+    this.count,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.full),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.full),
+          color: selected
+              ? AppColors.accent.withOpacity(0.2)
+              : (isDark
+                  ? AppColors.darkSurfaceVariant
+                  : AppColors.surfaceVariant),
+          border: Border.all(
             color: selected
-                ? AppColors.accent.withOpacity(0.2)
-                : (isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceVariant),
-            border: Border.all(
-              color: selected ? AppColors.accent : (isDark ? AppColors.darkOutline : AppColors.outline),
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.full),
+                ? AppColors.accent
+                : (isDark ? AppColors.darkOutline : AppColors.outline),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary,
+              ),
+            ),
+            if (count != null) ...[
+              const SizedBox(width: 4),
               Text(
-                label,
+                count!,
                 style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.textSecondary,
                 ),
               ),
-              if (onDelete != null) ...[
-                SizedBox(width: AppSpacing.xs),
-                InkWell(
-                  onTap: onDelete,
-                  child: Icon(
-                    Icons.close,
-                    size: 14,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
-                  ),
-                ),
-              ]
             ],
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
+enum BadgeType { success, error, warning, info, accent }
+
 class AppBadge extends StatelessWidget {
   final String label;
-  final BadgeVariant variant;
+  final BadgeType type;
 
   const AppBadge({
     Key? key,
     required this.label,
-    this.variant = BadgeVariant.primary,
+    this.type = BadgeType.accent,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = _getColors(isDark);
+    final colors = _getColors();
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: colors['bg'],
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -103,29 +112,29 @@ class AppBadge extends StatelessWidget {
     );
   }
 
-  Map<String, Color> _getColors(bool isDark) {
-    switch (variant) {
-      case BadgeVariant.success:
+  Map<String, Color> _getColors() {
+    switch (type) {
+      case BadgeType.success:
         return {
           'bg': AppColors.success.withOpacity(0.1),
           'text': AppColors.success,
         };
-      case BadgeVariant.error:
+      case BadgeType.error:
         return {
           'bg': AppColors.error.withOpacity(0.1),
           'text': AppColors.error,
         };
-      case BadgeVariant.warning:
+      case BadgeType.warning:
         return {
           'bg': AppColors.warning.withOpacity(0.1),
           'text': AppColors.warning,
         };
-      case BadgeVariant.info:
+      case BadgeType.info:
         return {
           'bg': AppColors.info.withOpacity(0.1),
           'text': AppColors.info,
         };
-      case BadgeVariant.primary:
+      case BadgeType.accent:
         return {
           'bg': AppColors.accent.withOpacity(0.1),
           'text': AppColors.accent,
@@ -133,5 +142,3 @@ class AppBadge extends StatelessWidget {
     }
   }
 }
-
-enum BadgeVariant { primary, success, error, warning, info }

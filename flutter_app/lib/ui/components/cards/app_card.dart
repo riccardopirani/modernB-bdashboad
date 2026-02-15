@@ -1,60 +1,48 @@
 import 'package:flutter/material.dart';
-import '../../core/config/theme.dart';
+import 'package:lockflow/core/config/theme.dart';
 
 class AppCard extends StatelessWidget {
   final Widget child;
-  final EdgeInsets padding;
+  final EdgeInsetsGeometry? padding;
   final VoidCallback? onTap;
   final bool glassmorphic;
-  final BoxBorder? border;
 
   const AppCard({
     Key? key,
     required this.child,
-    this.padding = const EdgeInsets.all(AppSpacing.lg),
+    this.padding,
     this.onTap,
     this.glassmorphic = false,
-    this.border,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final card = Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: glassmorphic
-            ? (isDark ? AppColors.glassDark : AppColors.glassLight)
-            : (isDark ? AppColors.darkSurface : AppColors.surface),
-        border: border ??
-            Border.all(
-              color: isDark ? AppColors.darkOutline : AppColors.outline,
-              width: 1,
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.xl),
-        boxShadow: glassmorphic
-            ? (isDark ? AppElevation.shadowDarkSoft : AppElevation.shadowSoft)
-            : AppElevation.shadowSoft,
-        backdropFilter: glassmorphic
-            ? (null) // Use Glass Kit for better glassmorphism
-            : null,
-      ),
-      child: child,
-    );
-
-    if (onTap != null) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.xl),
-          child: card,
+        child: Container(
+          padding: padding ?? const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: glassmorphic
+                ? (isDark
+                    ? AppColors.glassDark
+                    : AppColors.glassLight)
+                : (isDark ? AppColors.darkSurface : AppColors.surface),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            border: Border.all(
+              color: isDark ? AppColors.darkOutline : AppColors.outline,
+              width: 0.5,
+            ),
+            boxShadow: isDark ? AppElevation.shadowDarkSoft : AppElevation.shadowSoft,
+          ),
+          child: child,
         ),
-      );
-    }
-
-    return card;
+      ),
+    );
   }
 }
 
@@ -75,8 +63,9 @@ class AppCardHeader extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Column(
@@ -84,23 +73,26 @@ class AppCardHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color:
-                            isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
-                      ),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.textPrimary,
+                  ),
                 ),
                 if (subtitle != null) ...[
-                  SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: isDark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.textSecondary,
-                        ),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.textSecondary,
+                    ),
                   ),
-                ]
+                ],
               ],
             ),
           ),

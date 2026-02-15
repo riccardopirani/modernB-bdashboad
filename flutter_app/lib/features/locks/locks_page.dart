@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/config/theme.dart';
-import '../../core/providers/locks_provider.dart';
-import '../../core/providers/properties_provider.dart';
-import '../../ui/components/cards/app_card.dart';
-import '../../ui/components/buttons/app_button.dart';
-import '../../ui/components/badges/app_chip.dart';
-import '../../ui/components/loaders/app_skeleton_loader.dart';
+import 'package:lockflow/core/config/theme.dart';
+import 'package:lockflow/core/providers/locks_provider.dart';
+import 'package:lockflow/core/providers/properties_provider.dart';
+import 'package:lockflow/ui/components/cards/app_card.dart';
+import 'package:lockflow/ui/components/buttons/app_button.dart';
+import 'package:lockflow/ui/components/badges/app_chip.dart';
+import 'package:lockflow/ui/components/loaders/app_skeleton_loader.dart';
 
 class LocksPage extends ConsumerStatefulWidget {
   const LocksPage({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class _LocksPageState extends ConsumerState<LocksPage> {
     final properties = ref.watch(propertiesProvider);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,7 +40,7 @@ class _LocksPageState extends ConsumerState<LocksPage> {
                     'Locks',
                     style: Theme.of(context).textTheme.displaySmall,
                   ),
-                  SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 4),
                   Text(
                     'View and manage smart locks from TTLock',
                     style: TextStyle(
@@ -62,17 +62,17 @@ class _LocksPageState extends ConsumerState<LocksPage> {
             ],
           ),
 
-          SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: 24),
 
           // Filters
           properties.when(
             data: (props) {
               if (props.isNotEmpty) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       AppChip(
                         label: 'All Properties',
@@ -82,7 +82,8 @@ class _LocksPageState extends ConsumerState<LocksPage> {
                         },
                       ),
                       ...props.map((prop) {
-                        final isSelected = _selectedPropertyFilter == prop.id;
+                        final isSelected =
+                            _selectedPropertyFilter == prop.id;
                         return AppChip(
                           label: prop.name,
                           selected: isSelected,
@@ -108,7 +109,8 @@ class _LocksPageState extends ConsumerState<LocksPage> {
               final filtered = _selectedPropertyFilter == null
                   ? allLocks
                   : allLocks
-                      .where((l) => l.propertyId == _selectedPropertyFilter)
+                      .where(
+                          (l) => l.propertyId == _selectedPropertyFilter)
                       .toList();
 
               if (filtered.isEmpty) {
@@ -121,7 +123,7 @@ class _LocksPageState extends ConsumerState<LocksPage> {
                 itemCount: filtered.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    padding: const EdgeInsets.only(bottom: 16),
                     child: _LockCard(lock: filtered[index]),
                   );
                 },
@@ -130,8 +132,8 @@ class _LocksPageState extends ConsumerState<LocksPage> {
             loading: () => Column(
               children: List.generate(
                 3,
-                (index) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                (index) => const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
                   child: AppSkeletonCard(lineCount: 2),
                 ),
               ),
@@ -158,8 +160,8 @@ class _LockCard extends ConsumerWidget {
 
     String? propertyName;
     properties.whenData((props) {
-      propertyName =
-          props.firstWhere((p) => p.id == lock.propertyId, orElse: () => props.first).name;
+      final match = props.where((p) => p.id == lock.propertyId);
+      propertyName = match.isNotEmpty ? match.first.name : null;
     });
 
     return AppCard(
@@ -178,7 +180,7 @@ class _LockCard extends ConsumerWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: 4),
                     Text(
                       lock.model ?? 'Unknown Model',
                       style: TextStyle(
@@ -192,142 +194,92 @@ class _LockCard extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withOpacity(0.1),
+                  color: (lock.isLocked
+                          ? AppColors.error
+                          : AppColors.success)
+                      .withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Icon(
-                  lock.isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                  lock.isLocked
+                      ? Icons.lock_rounded
+                      : Icons.lock_open_rounded,
                   size: 20,
-                  color: lock.isLocked ? AppColors.error : AppColors.success,
+                  color:
+                      lock.isLocked ? AppColors.error : AppColors.success,
                 ),
               ),
             ],
           ),
-          SizedBox(height: AppSpacing.lg),
-          // Lock Status & Battery
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Status',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark
-                          ? AppColors.darkTextTertiary
-                          : AppColors.textTertiary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: AppSpacing.xs),
-                  AppChip(
-                    label: lock.isLocked ? 'Locked' : 'Unlocked',
-                    selected: lock.isLocked,
-                  ),
-                ],
+              _LockInfo(
+                label: 'Status',
+                child: AppChip(
+                  label: lock.isLocked ? 'Locked' : 'Unlocked',
+                  selected: lock.isLocked,
+                ),
+                isDark: isDark,
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Battery',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark
-                          ? AppColors.darkTextTertiary
-                          : AppColors.textTertiary,
-                      fontWeight: FontWeight.w600,
+              _LockInfo(
+                label: 'Battery',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _getBatteryIcon(lock.electricQuantity),
+                      size: 16,
+                      color: _getBatteryColor(lock.electricQuantity),
                     ),
-                  ),
-                  SizedBox(height: AppSpacing.xs),
-                  Row(
-                    children: [
-                      Icon(
-                        _getBatteryIcon(lock.electricQuantity),
-                        size: 16,
+                    const SizedBox(width: 4),
+                    Text(
+                      lock.batteryStatus,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         color: _getBatteryColor(lock.electricQuantity),
                       ),
-                      SizedBox(width: AppSpacing.xs),
-                      Text(
-                        lock.batteryStatus,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: _getBatteryColor(lock.electricQuantity),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              if (lock.propertyId == null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Property',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark
-                            ? AppColors.darkTextTertiary
-                            : AppColors.textTertiary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: AppSpacing.xs),
-                    AppChip(label: 'Unassigned'),
-                  ],
-                )
-              else
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Property',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark
-                            ? AppColors.darkTextTertiary
-                            : AppColors.textTertiary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: AppSpacing.xs),
-                    AppChip(
-                      label: propertyName ?? 'Loading...',
-                      selected: true,
                     ),
                   ],
                 ),
+                isDark: isDark,
+              ),
+              _LockInfo(
+                label: 'Property',
+                child: lock.propertyId == null
+                    ? const AppChip(label: 'Unassigned')
+                    : AppChip(
+                        label: propertyName ?? 'Loading...',
+                        selected: true,
+                      ),
+                isDark: isDark,
+              ),
             ],
           ),
-          SizedBox(height: AppSpacing.lg),
-          // Actions
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               if (lock.propertyId != null)
                 TextButton(
                   onPressed: () {
-                    ref
-                        .read(locksProvider.notifier)
-                        .unassignLock(lock.id);
+                    ref.read(locksProvider.notifier).unassignLock(lock.id);
                   },
                   child: Text(
                     'Unassign',
                     style: TextStyle(color: AppColors.error),
                   ),
                 ),
-              SizedBox(width: AppSpacing.md),
+              const SizedBox(width: 12),
               AppButton(
-                label: lock.propertyId == null ? 'Assign Property' : 'View Details',
-                onPressed: () {
-                  // Open assignment or details dialog
-                },
+                label: lock.propertyId == null
+                    ? 'Assign Property'
+                    : 'View Details',
+                onPressed: () {},
                 variant: ButtonVariant.secondary,
                 size: ButtonSize.small,
               ),
@@ -353,18 +305,50 @@ class _LockCard extends ConsumerWidget {
   }
 }
 
+class _LockInfo extends StatelessWidget {
+  final String label;
+  final Widget child;
+  final bool isDark;
+
+  const _LockInfo({
+    required this.label,
+    required this.child,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: isDark
+                ? AppColors.darkTextTertiary
+                : AppColors.textTertiary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        child,
+      ],
+    );
+  }
+}
+
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.xxl,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadius.xl),
       ),
       child: Center(
@@ -373,20 +357,23 @@ class _EmptyState extends StatelessWidget {
             Icon(
               Icons.lock_rounded,
               size: 48,
-              color:
-                  isDark ? AppColors.darkTextTertiary : AppColors.textTertiary,
+              color: isDark
+                  ? AppColors.darkTextTertiary
+                  : AppColors.textTertiary,
             ),
-            SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 16),
             Text(
               'No locks found',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: 8),
             Text(
               'Connect your TTLock account and sync locks to manage them here.',
               style: TextStyle(
                 fontSize: 13,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.textTertiary,
+                color: isDark
+                    ? AppColors.darkTextTertiary
+                    : AppColors.textTertiary,
               ),
               textAlign: TextAlign.center,
             ),

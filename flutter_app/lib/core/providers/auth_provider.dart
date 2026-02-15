@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/config/environment.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 
 // Supabase client provider
 final supabaseProvider = Provider<SupabaseClient>((ref) {
@@ -13,10 +12,10 @@ final currentUserProvider = StreamProvider<User?>((ref) {
   return supabase.auth.onAuthStateChange.map((event) => event.session?.user);
 });
 
-// Current org provider (would be set during login/org selection)
+// Current org provider
 final currentOrgProvider = StateProvider<String?>((ref) => null);
 
-// Auth notifier for login/signup/logout
+// Auth notifier
 final authNotifierProvider =
     StateNotifierProvider<AuthNotifier, AsyncValue<void>>((ref) {
   return AuthNotifier(ref.watch(supabaseProvider));
@@ -36,8 +35,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
         data: {'full_name': fullName},
       );
       state = const AsyncValue.data(null);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -46,8 +45,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await _supabase.auth.signInWithPassword(email: email, password: password);
       state = const AsyncValue.data(null);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -56,8 +55,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await _supabase.auth.signOut();
       state = const AsyncValue.data(null);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 }

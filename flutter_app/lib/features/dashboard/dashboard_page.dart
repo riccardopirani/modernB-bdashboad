@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/config/theme.dart';
-import '../../core/providers/auth_provider.dart';
-import '../../core/providers/properties_provider.dart';
-import '../../core/providers/bookings_provider.dart';
-import '../../core/providers/locks_provider.dart';
-import '../../core/providers/access_codes_provider.dart';
-import '../../ui/components/cards/app_card.dart';
-import '../../ui/components/buttons/app_button.dart';
-import '../../ui/components/loaders/app_skeleton_loader.dart';
+import 'package:lockflow/core/config/theme.dart';
+import 'package:lockflow/core/providers/properties_provider.dart';
+import 'package:lockflow/core/providers/bookings_provider.dart';
+import 'package:lockflow/core/providers/locks_provider.dart';
+import 'package:lockflow/core/providers/access_codes_provider.dart';
+import 'package:lockflow/ui/components/cards/app_card.dart';
+import 'package:lockflow/ui/components/buttons/app_button.dart';
+import 'package:lockflow/ui/components/loaders/app_skeleton_loader.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -22,13 +21,13 @@ class DashboardPage extends ConsumerWidget {
     final accessCodes = ref.watch(accessCodesProvider);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+            padding: const EdgeInsets.only(bottom: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -36,7 +35,7 @@ class DashboardPage extends ConsumerWidget {
                   'Dashboard',
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
-                SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 4),
                 Text(
                   'Welcome back! Here\'s what\'s happening with your properties.',
                   style: TextStyle(
@@ -56,15 +55,14 @@ class DashboardPage extends ConsumerWidget {
               final isMobile = constraints.maxWidth < 600;
               final isTablet =
                   constraints.maxWidth < 1024 && constraints.maxWidth >= 600;
-
               int crossAxisCount = isMobile ? 2 : (isTablet ? 2 : 4);
 
               return GridView.count(
                 crossAxisCount: crossAxisCount,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: AppSpacing.lg,
-                crossAxisSpacing: AppSpacing.lg,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
                 childAspectRatio: 1.2,
                 children: [
                   _KPICard(
@@ -83,7 +81,7 @@ class DashboardPage extends ConsumerWidget {
                       orElse: () => '—',
                     ),
                     icon: Icons.lock_rounded,
-                    color: const Color(0xFF10B981),
+                    color: AppColors.success,
                   ),
                   _KPICard(
                     title: 'Upcoming Stays',
@@ -92,7 +90,7 @@ class DashboardPage extends ConsumerWidget {
                       orElse: () => '—',
                     ),
                     icon: Icons.calendar_today_rounded,
-                    color: const Color(0xFFF59E0B),
+                    color: AppColors.warning,
                   ),
                   _KPICard(
                     title: 'Active Codes',
@@ -109,11 +107,11 @@ class DashboardPage extends ConsumerWidget {
             },
           ),
 
-          SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: 32),
 
           // Upcoming Check-ins Section
           Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+            padding: const EdgeInsets.only(bottom: 16),
             child: Text(
               'Upcoming Check-ins',
               style: Theme.of(context).textTheme.headlineSmall,
@@ -137,7 +135,7 @@ class DashboardPage extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final booking = bookings[index];
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    padding: const EdgeInsets.only(bottom: 16),
                     child: _BookingCard(booking: booking),
                   );
                 },
@@ -146,8 +144,8 @@ class DashboardPage extends ConsumerWidget {
             loading: () => Column(
               children: List.generate(
                 3,
-                (index) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                (index) => const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
                   child: AppSkeletonCard(lineCount: 2),
                 ),
               ),
@@ -157,11 +155,11 @@ class DashboardPage extends ConsumerWidget {
             ),
           ),
 
-          SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: 32),
 
           // Quick Actions
           Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+            padding: const EdgeInsets.only(bottom: 16),
             child: Text(
               'Quick Actions',
               style: Theme.of(context).textTheme.headlineSmall,
@@ -172,13 +170,13 @@ class DashboardPage extends ConsumerWidget {
             builder: (context, constraints) {
               final isMobile = constraints.maxWidth < 600;
               return Wrap(
-                spacing: AppSpacing.lg,
-                runSpacing: AppSpacing.lg,
+                spacing: 16,
+                runSpacing: 16,
                 children: [
                   SizedBox(
                     width: isMobile
                         ? constraints.maxWidth
-                        : (constraints.maxWidth - AppSpacing.lg) / 2,
+                        : (constraints.maxWidth - 16) / 2,
                     child: AppButton(
                       label: 'Sync Locks',
                       onPressed: () {
@@ -191,24 +189,20 @@ class DashboardPage extends ConsumerWidget {
                   SizedBox(
                     width: isMobile
                         ? constraints.maxWidth
-                        : (constraints.maxWidth - AppSpacing.lg) / 2,
+                        : (constraints.maxWidth - 16) / 2,
                     child: AppButton(
                       label: 'Generate Code',
-                      onPressed: () {
-                        // Navigate to codes page
-                      },
+                      onPressed: () {},
                       icon: Icons.vpn_key_rounded,
                     ),
                   ),
                   SizedBox(
                     width: isMobile
                         ? constraints.maxWidth
-                        : (constraints.maxWidth - AppSpacing.lg) / 2,
+                        : (constraints.maxWidth - 16) / 2,
                     child: AppButton(
                       label: 'Add Property',
-                      onPressed: () {
-                        // Navigate to properties page
-                      },
+                      onPressed: () {},
                       variant: ButtonVariant.secondary,
                       icon: Icons.home_rounded,
                     ),
@@ -216,12 +210,10 @@ class DashboardPage extends ConsumerWidget {
                   SizedBox(
                     width: isMobile
                         ? constraints.maxWidth
-                        : (constraints.maxWidth - AppSpacing.lg) / 2,
+                        : (constraints.maxWidth - 16) / 2,
                     child: AppButton(
                       label: 'View All Bookings',
-                      onPressed: () {
-                        // Navigate to bookings page
-                      },
+                      onPressed: () {},
                       variant: ButtonVariant.ghost,
                       icon: Icons.calendar_today_rounded,
                     ),
@@ -236,7 +228,7 @@ class DashboardPage extends ConsumerWidget {
   }
 }
 
-class _KPICard extends ConsumerWidget {
+class _KPICard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
@@ -250,7 +242,7 @@ class _KPICard extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
@@ -274,16 +266,12 @@ class _KPICard extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(AppSpacing.xs),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: color,
-                ),
+                child: Icon(icon, size: 18, color: color),
               ),
             ],
           ),
@@ -300,13 +288,13 @@ class _KPICard extends ConsumerWidget {
   }
 }
 
-class _BookingCard extends ConsumerWidget {
+class _BookingCard extends StatelessWidget {
   final Booking booking;
 
   const _BookingCard({required this.booking});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final daysUntilCheckIn =
         booking.checkInDate.difference(DateTime.now()).inDays;
@@ -327,7 +315,7 @@ class _BookingCard extends ConsumerWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: 4),
                     Text(
                       '${booking.checkInDate.toString().split(' ')[0]} – ${booking.checkOutDate.toString().split(' ')[0]}',
                       style: TextStyle(
@@ -341,10 +329,8 @@ class _BookingCard extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: daysUntilCheckIn <= 1
                       ? AppColors.error.withOpacity(0.1)
@@ -352,7 +338,9 @@ class _BookingCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
                 child: Text(
-                  daysUntilCheckIn <= 0 ? 'Today' : 'In $daysUntilCheckIn days',
+                  daysUntilCheckIn <= 0
+                      ? 'Today'
+                      : 'In $daysUntilCheckIn days',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -365,13 +353,14 @@ class _BookingCard extends ConsumerWidget {
             ],
           ),
           if (booking.guestEmail != null) ...[
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: 8),
             Text(
               booking.guestEmail!,
               style: TextStyle(
                 fontSize: 12,
-                color:
-                    isDark ? AppColors.darkTextTertiary : AppColors.textTertiary,
+                color: isDark
+                    ? AppColors.darkTextTertiary
+                    : AppColors.textTertiary,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -398,12 +387,11 @@ class _EmptyState extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.xxl,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceVariant,
+        color: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadius.xl),
       ),
       child: Center(
@@ -416,19 +404,20 @@ class _EmptyState extends StatelessWidget {
                   ? AppColors.darkTextTertiary
                   : AppColors.textTertiary,
             ),
-            SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: 16),
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: 8),
             Text(
               subtitle,
               style: TextStyle(
                 fontSize: 13,
-                color:
-                    isDark ? AppColors.darkTextTertiary : AppColors.textTertiary,
+                color: isDark
+                    ? AppColors.darkTextTertiary
+                    : AppColors.textTertiary,
               ),
               textAlign: TextAlign.center,
             ),

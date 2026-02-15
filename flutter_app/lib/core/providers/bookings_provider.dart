@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'auth_provider.dart';
 
 class Booking {
@@ -62,13 +62,14 @@ final bookingsProvider =
     StateNotifierProvider<BookingsNotifier, AsyncValue<List<Booking>>>((ref) {
   final supabase = ref.watch(supabaseProvider);
   final orgId = ref.watch(currentOrgProvider);
-
   return BookingsNotifier(supabase, orgId);
 });
 
-final upcomingBookingsProvider = FutureProvider<List<Booking>>((ref) async {
-  final bookings = await ref.watch(bookingsProvider.future);
-  return bookings.where((b) => b.isUpcoming).toList();
+final upcomingBookingsProvider = Provider<AsyncValue<List<Booking>>>((ref) {
+  final bookingsAsync = ref.watch(bookingsProvider);
+  return bookingsAsync.whenData(
+    (bookings) => bookings.where((b) => b.isUpcoming).toList(),
+  );
 });
 
 class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
@@ -85,7 +86,6 @@ class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
       state = const AsyncValue.data([]);
       return;
     }
-
     state = const AsyncValue.loading();
     try {
       final response = await _supabase
@@ -93,51 +93,12 @@ class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
           .select()
           .eq('org_id', _orgId!)
           .order('check_in_date', ascending: true);
-
       final bookings = (response as List)
           .map((b) => Booking.fromJson(b as Map<String, dynamic>))
           .toList();
-
       state = AsyncValue.data(bookings);
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
-    }
-  }
-
-  Future<void> createBooking({
-    required String propertyId,
-    required String icalUid,
-    required String guestName,
-    String? guestEmail,
-    String? guestPhone,
-    required DateTime checkInDate,
-    required DateTime checkOutDate,
-    String? checkInTime,
-    String? checkOutTime,
-    String status = 'confirmed',
-    String? notes,
-  }) async {
-    if (_orgId == null) return;
-
-    try {
-      await _supabase.from('bookings').insert({
-        'org_id': _orgId,
-        'property_id': propertyId,
-        'ical_uid': icalUid,
-        'guest_name': guestName,
-        'guest_email': guestEmail,
-        'guest_phone': guestPhone,
-        'check_in_date': checkInDate.toIso8601String().split('T')[0],
-        'check_out_date': checkOutDate.toIso8601String().split('T')[0],
-        'check_in_time': checkInTime,
-        'check_out_time': checkOutTime,
-        'status': status,
-        'notes': notes,
-      });
-
-      await _loadBookings();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 
@@ -147,10 +108,9 @@ class BookingsNotifier extends StateNotifier<AsyncValue<List<Booking>>> {
           .from('bookings')
           .update({'status': 'cancelled'})
           .eq('id', bookingId);
-
       await _loadBookings();
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
     }
   }
 }
