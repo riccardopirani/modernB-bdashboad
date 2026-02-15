@@ -1,0 +1,39 @@
+# Supabase Configuration
+# This file is used by supabase CLI for local development
+
+[project]
+project_id = "ttlockadmin-local"
+
+[api]
+# Proxy server configuration
+enabled = true
+
+[db]
+# Database settings
+port = 54322
+# shadow_test_db = false
+# major_version = 15
+
+[studio]
+# Studio UI port
+port = 54323
+
+[inbucket]
+# Email testing
+enabled = true
+smtp_port = 54324
+pop3_port = 54325
+api_port = 54326
+www_port = 54327
+
+[auth]
+# Auth settings
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:5173/auth/callback", "http://localhost:54321"]
+jwt_expiry_secs = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval_secs = 10
+enable_signup = true
+
+[edge_runtime]
+policy_http_port = 54328

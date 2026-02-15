@@ -1,0 +1,90 @@
+name: lockflow
+description: Multi-tenant property management SaaS for TTLock integration
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Navigation & Routing
+  go_router: ^13.0.0
+
+  # State Management
+  riverpod: ^2.4.0
+  flutter_riverpod: ^2.4.0
+  riverpod_generator: ^2.3.0
+
+  # Supabase & Auth
+  supabase_flutter: ^1.10.0
+
+  # UI Components & Design
+  flutter_svg: ^2.0.0
+  lucide_icons: ^0.292.0
+  glass_kit: ^0.2.0
+
+  # Material & Animations
+  animations: ^2.0.0
+  shimmer: ^3.0.0
+
+  # Networking & HTTP
+  http: ^1.1.0
+  dio: ^5.3.0
+
+  # Serialization
+  json_serializable: ^6.7.0
+  json_annotation: ^4.8.0
+
+  # Utilities
+  intl: ^0.19.0
+  timeago: ^3.6.0
+  uuid: ^4.0.0
+  dotenv: ^0.0.1
+
+  # Local Storage
+  shared_preferences: ^2.2.0
+  hive: ^2.2.0
+
+  # Analytics & Monitoring
+  # sentry_flutter: ^7.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+
+  # Code Generation
+  build_runner: ^2.4.0
+  riverpod_generator: ^2.3.0
+  json_serializable: ^6.7.0
+
+  # Testing
+  mocktail: ^1.0.0
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/lottie/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+
+flutter_gen:
+  output: lib/gen/
