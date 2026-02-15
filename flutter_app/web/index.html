@@ -1,37 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <base href="/">
+  <base href="$FLUTTER_BASE_HREF">
 
-    <meta charset="UTF-8">
-    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-    <meta name="description" content="LockFlow - Multi-tenant TTLock SaaS">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="LockFlow - Smart Lock Management">
 
-    <!-- iOS meta tags & icons -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="LockFlow">
-    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- iOS meta tags & icons -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LockFlow">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png"/>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
 
-    <title>LockFlow</title>
-    <link rel="manifest" href="manifest.json">
+  <title>LockFlow</title>
+  <link rel="manifest" href="manifest.json">
 
-    <script>
-        // {{ flutter_js }}
-        // Placeholder for Flutter JS
-    </script>
+  <!-- Loading indicator style -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0F0F0F;
+      overflow: hidden;
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .loading-logo {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      font-size: 22px;
+      margin-bottom: 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .loading-text {
+      color: #666;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+  </style>
 </head>
 <body>
-    <div id="app"></div>
+  <div class="loading" id="loading">
+    <div class="loading-logo">LF</div>
+    <div class="loading-text">Loading LockFlow...</div>
+  </div>
 
-    <script>
-        window.addEventListener('load', function(ev) {
-            // initializeApp() in Flutter's web/main.js
-        });
-    </script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
